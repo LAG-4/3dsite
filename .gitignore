@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local working files
+/scratch/
+i_have_this_video_of_a_face_be.mp4
