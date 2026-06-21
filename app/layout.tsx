@@ -17,17 +17,17 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Your Name — Scroll Portrait",
-  description: "A scroll-led digital portrait.",
+  title: "Jo Mendes — NomadaToast",
+  description: "Practical AI tutorials for creators who want to grow, ship, and monetise.",
   openGraph: {
-    title: "Your Name — Scroll Portrait",
-    description: "A scroll-led digital portrait.",
+    title: "Jo Mendes — NomadaToast",
+    description: "Practical AI tutorials for creators who want to grow, ship, and monetise.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Your Name — Scroll Portrait",
-    description: "A scroll-led digital portrait.",
+    title: "Jo Mendes — NomadaToast",
+    description: "Practical AI tutorials for creators who want to grow, ship, and monetise.",
   },
 };
 

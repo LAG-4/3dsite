@@ -85,10 +85,9 @@ a:focus-visible {
   height: 100%;
   object-fit: cover;
   object-position: center;
-  filter: blur(1.8px) saturate(0.95) contrast(1.015) brightness(0.92);
+  filter: saturate(0.95) contrast(1.015) brightness(0.92);
   transform: scale(1.008);
-  will-change: filter;
-  transition: filter 0.4s ease;
+  will-change: transform;
 }
 
 .videoTreatment {
@@ -109,8 +108,7 @@ a:focus-visible {
   z-index: 1;
   inset: 0;
   pointer-events: none;
-  opacity: 0.16;
-  mix-blend-mode: soft-light;
+  opacity: 0.055;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.42'/%3E%3C/svg%3E");
 }
 
@@ -204,7 +202,7 @@ a:focus-visible {
   border-radius: 999px;
   background: rgba(47, 44, 44, 0.78);
   box-shadow: 0 14px 45px rgba(29, 24, 24, 0.09);
-  backdrop-filter: blur(12px);
+  /* backdrop-filter removed for performance */
   transform-origin: top center;
   will-change: transform;
 }
@@ -275,7 +273,6 @@ a:focus-visible {
   left: 0;
   width: min(36vw, 610px);
   transform-origin: left center;
-  will-change: opacity, transform, filter;
   pointer-events: auto;
 }
 
@@ -287,9 +284,8 @@ a:focus-visible {
   width: 100%;
   max-height: 82vh;
   overflow-y: auto;
-  scrollbar-width: none; /* Hide scrollbar for layout */
+  scrollbar-width: none;
   transform-origin: center center;
-  will-change: opacity, transform, filter;
   pointer-events: auto;
 }
 
@@ -321,7 +317,7 @@ a:focus-visible {
   letter-spacing: -0.065em;
   line-height: 0.99;
   text-wrap: balance;
-  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.65);
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
 }
 
 .narrative h1 em,
@@ -338,7 +334,7 @@ a:focus-visible {
   font-weight: 500;
   letter-spacing: -0.025em;
   line-height: 1.55;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55), 0 1px 3px rgba(0, 0, 0, 0.75);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
 }
 
 .finalIntro {
@@ -418,8 +414,6 @@ a:focus-visible {
   gap: 18px;
   font-size: 14px;
   font-weight: 580;
-  will-change: opacity, transform, filter;
-  transition: opacity 120ms linear, transform 120ms linear, filter 120ms linear;
 }
 
 .railScene p,
@@ -528,18 +522,48 @@ a:focus-visible {
   50% { transform: translateY(4px); }
 }
 
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+.chatTypingDot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: currentColor;
+  border-radius: 50%;
+  animation: pulse 1s infinite;
+}
+
 @media (max-width: 900px) {
   .scrollExperience {
-    min-height: 580vh;
+    min-height: auto;
+    background: #11100f;
+    --paper: #11100f;
   }
 
   .stickyViewport {
-    height: 100vh;
-    height: 100dvh;
-    min-height: 520px;
+    position: relative;
+    height: auto;
+    min-height: auto;
+    overflow: visible;
+  }
+
+  .videoStage {
+    position: relative;
+    height: 58vh;
+    min-height: 340px;
+  }
+
+  .grain,
+  .viewportFrame,
+  .mobileHint {
+    display: none;
   }
 
   .siteHeader {
+    position: absolute;
     top: 20px;
     left: 20px;
     right: 20px;
@@ -597,15 +621,33 @@ a:focus-visible {
   }
 
   .narrative {
-    left: 22px;
-    right: 22px;
+    position: relative;
+    top: auto;
+    bottom: auto;
+    left: 0;
+    right: 0;
     width: auto;
+    pointer-events: auto;
+    padding: 40px 22px 80px;
   }
 
-  .narrativePanel {
+  .narrativePanel,
+  .narrativePanelFull {
+    position: relative;
     top: auto;
-    bottom: max(10%, calc(env(safe-area-inset-bottom) + 56px));
-    text-shadow: 0 2px 18px rgba(31, 25, 24, 0.1);
+    left: auto;
+    right: auto;
+    bottom: auto;
+    width: 100%;
+    max-width: 100%;
+    max-height: none;
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transform: none !important;
+    margin-bottom: 72px;
+    overflow: visible;
   }
 
   .eyebrow {
@@ -639,21 +681,6 @@ a:focus-visible {
   .projectButton span:last-child {
     width: 43px;
     height: 43px;
-  }
-
-  .mobileHint {
-    position: absolute;
-    z-index: 12;
-    right: 20px;
-    bottom: max(20px, env(safe-area-inset-bottom));
-    display: flex;
-    gap: 9px;
-    margin: 0;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
 }
 
@@ -727,7 +754,7 @@ a:focus-visible {
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 16px;
   padding: 35px 30px;
-  backdrop-filter: blur(12px);
+  /* backdrop-filter removed for performance */
   transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
 }
 .metricCard:hover {
@@ -841,7 +868,7 @@ a:focus-visible {
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 16px;
   padding: 40px;
-  backdrop-filter: blur(12px);
+  /* backdrop-filter removed for performance */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -920,7 +947,7 @@ a:focus-visible {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  backdrop-filter: blur(8px);
+  /* backdrop-filter removed for performance */
 }
 .chatHeader {
   display: flex;
@@ -1009,7 +1036,7 @@ a:focus-visible {
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 16px;
   padding: 30px;
-  backdrop-filter: blur(12px);
+  /* backdrop-filter removed for performance */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1055,7 +1082,7 @@ a:focus-visible {
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 16px;
   padding: 40px;
-  backdrop-filter: blur(12px);
+  /* backdrop-filter removed for performance */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1088,7 +1115,7 @@ a:focus-visible {
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 16px;
   padding: 40px;
-  backdrop-filter: blur(12px);
+  /* backdrop-filter removed for performance */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1153,7 +1180,7 @@ a:focus-visible {
   border-radius: 12px;
   height: 80px;
   padding: 10px 20px;
-  backdrop-filter: blur(8px);
+  /* backdrop-filter removed for performance */
   transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
   cursor: default;
 }
@@ -1184,7 +1211,7 @@ a:focus-visible {
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 16px;
   padding: 40px;
-  backdrop-filter: blur(12px);
+  /* backdrop-filter removed for performance */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1224,7 +1251,7 @@ a:focus-visible {
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 16px;
   padding: 40px;
-  backdrop-filter: blur(12px);
+  /* backdrop-filter removed for performance */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1339,7 +1366,7 @@ a:focus-visible {
   grid-template-columns: 1.5fr repeat(3, 1fr);
   gap: 30px;
   width: 100%;
-  backdrop-filter: blur(12px);
+  /* backdrop-filter removed for performance */
   pointer-events: auto;
   margin-top: 40px;
 }
@@ -1457,10 +1484,6 @@ a:focus-visible {
   }
   .pillarCardTitle {
     font-size: 24px !important;
-  }
-  .narrativePanelFull {
-    top: 5% !important;
-    max-height: 88vh !important;
   }
 }
 
