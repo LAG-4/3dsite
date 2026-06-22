@@ -2,6 +2,16 @@
 
 import { useEffect, useRef } from "react";
 
+const LINKS = {
+  youtube: "https://www.youtube.com/@Nomadatoast",
+  tiktok: "https://www.tiktok.com/@nomadatoast",
+  instagram: "https://www.instagram.com/nomadatoast/",
+  threads: "https://www.threads.net/@nomadatoast",
+  x: "https://x.com/nomadatoast",
+  allLinks: "https://www.instagram.com/nomadatoast/",
+  emailPress: "mailto:hi@nomadatoast.com?subject=Press%20%26%20collabs",
+} as const;
+
 const FRAME_COUNT = 13;
 const VIDEO_PROGRESS_LIMIT = 0.16;
 const SEEK_THRESHOLD = 0.04;
@@ -730,7 +740,7 @@ export function ScrollExperience() {
 
                 <div className="aboutButtons">
                   <a href="https://youtube.com/@Nomadatoast" target="_blank" rel="noopener noreferrer" className="aboutBtn">Watch latest</a>
-                  <a href="#" className="aboutBtn">All links</a>
+                  <a href={LINKS.allLinks} target="_blank" rel="noopener noreferrer" className="aboutBtn">All links</a>
                   <a href="mailto:hi@nomadatoast.com" className="aboutBtn">Get in touch</a>
                 </div>
               </div>
@@ -762,10 +772,10 @@ export function ScrollExperience() {
 
             <div className="contactLinks">
               <a className="contactLink" href="https://youtube.com/@Nomadatoast" target="_blank" rel="noreferrer">YouTube @Nomadatoast ↗</a>
-              <a className="contactLink" href="#" rel="noreferrer">TikTok @nomadatoast ↗</a>
-              <a className="contactLink" href="#" rel="noreferrer">Instagram @nomadatoast ↗</a>
-              <a className="contactLink" href="#" rel="noreferrer">Threads @nomadatoast ↗</a>
-              <a className="contactLink" href="#" rel="noreferrer">X @nomadatoast ↗</a>
+              <a className="contactLink" href={LINKS.tiktok} target="_blank" rel="noreferrer">TikTok @nomadatoast ↗</a>
+              <a className="contactLink" href={LINKS.instagram} target="_blank" rel="noreferrer">Instagram @nomadatoast ↗</a>
+              <a className="contactLink" href={LINKS.threads} target="_blank" rel="noreferrer">Threads @nomadatoast ↗</a>
+              <a className="contactLink" href={LINKS.x} target="_blank" rel="noreferrer">X @nomadatoast ↗</a>
             </div>
           </div>
 
@@ -785,18 +795,18 @@ export function ScrollExperience() {
                 <h4>Watch</h4>
                 <ul>
                   <li><a href="https://youtube.com/@Nomadatoast" target="_blank" rel="noreferrer">YouTube · @Nomadatoast</a></li>
-                  <li><a href="#" rel="noreferrer">TikTok · @nomadatoast</a></li>
-                  <li><a href="#" rel="noreferrer">Instagram Reels</a></li>
-                  <li><a href="#" rel="noreferrer">Latest video</a></li>
+                  <li><a href={LINKS.tiktok} target="_blank" rel="noreferrer">TikTok · @nomadatoast</a></li>
+                  <li><a href={LINKS.instagram} target="_blank" rel="noreferrer">Instagram Reels</a></li>
+                  <li><a href={LINKS.youtube} target="_blank" rel="noreferrer">Latest video</a></li>
                 </ul>
               </div>
 
               <div className="footerLinkCol">
                 <h4>Read</h4>
                 <ul>
-                  <li><a href="#" rel="noreferrer">Threads · @nomadatoast</a></li>
-                  <li><a href="#" rel="noreferrer">X · @nomadatoast</a></li>
-                  <li><a href="#" rel="noreferrer">All links</a></li>
+                  <li><a href={LINKS.threads} target="_blank" rel="noreferrer">Threads · @nomadatoast</a></li>
+                  <li><a href={LINKS.x} target="_blank" rel="noreferrer">X · @nomadatoast</a></li>
+                  <li><a href={LINKS.allLinks} target="_blank" rel="noreferrer">All links</a></li>
                 </ul>
               </div>
 
@@ -804,8 +814,8 @@ export function ScrollExperience() {
                 <h4>Contact</h4>
                 <ul>
                   <li><a href="mailto:hi@nomadatoast.com">hi@nomadatoast.com</a></li>
-                  <li><a href="#">Press & collabs</a></li>
-                  <li><a href="#">Amsterdam · Lisbon</a></li>
+                  <li><a href={LINKS.emailPress}>Press & collabs</a></li>
+                  <li><span className="footerLocation">Amsterdam · Lisbon</span></li>
                 </ul>
               </div>
             </div>
@@ -816,10 +826,10 @@ export function ScrollExperience() {
               <span>© 2025 Jo Mendes · NomadaToast. Made using Emergent.</span>
               <div className="bottomBarLinks">
                 <a href="https://youtube.com/@Nomadatoast" target="_blank" rel="noreferrer">YOUTUBE</a>
-                <a href="#" rel="noreferrer">TIKTOK</a>
-                <a href="#" rel="noreferrer">INSTAGRAM</a>
-                <a href="#" rel="noreferrer">THREADS</a>
-                <a href="#" rel="noreferrer">X</a>
+                <a href={LINKS.tiktok} target="_blank" rel="noreferrer">TIKTOK</a>
+                <a href={LINKS.instagram} target="_blank" rel="noreferrer">INSTAGRAM</a>
+                <a href={LINKS.threads} target="_blank" rel="noreferrer">THREADS</a>
+                <a href={LINKS.x} target="_blank" rel="noreferrer">X</a>
               </div>
             </div>
           </div>
@@ -845,10 +855,10 @@ export function ScrollExperience() {
             <div className="railScene" style={{ opacity: 0 }}>
               <p className="railLabel">Follow</p>
               <a href="https://youtube.com/@Nomadatoast" target="_blank" rel="noreferrer">YouTube</a>
-              <a href="#" rel="noreferrer">TikTok</a>
-              <a href="#" rel="noreferrer">Instagram</a>
-              <a href="#" rel="noreferrer">Threads</a>
-              <a href="#" rel="noreferrer">X</a>
+              <a href={LINKS.tiktok} target="_blank" rel="noreferrer">TikTok</a>
+              <a href={LINKS.instagram} target="_blank" rel="noreferrer">Instagram</a>
+              <a href={LINKS.threads} target="_blank" rel="noreferrer">Threads</a>
+              <a href={LINKS.x} target="_blank" rel="noreferrer">X</a>
             </div>
 
             <div className="railScene" style={{ opacity: 0 }}>

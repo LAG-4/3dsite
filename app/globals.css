@@ -1412,6 +1412,10 @@ a:focus-visible {
 .footerLinkCol a:hover {
   color: var(--white);
 }
+.footerLocation {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+}
 .hugeFooterText {
   font-size: clamp(80px, 12vw, 190px);
   font-weight: 700;
