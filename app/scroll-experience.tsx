@@ -1,6 +1,22 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import {
+  getBreakpoint,
+  isCompactLayout,
+  VIDEO_STAGE_CONFIG,
+  type BreakpointKey,
+} from "./lib/experience-config";
+
+const LINKS = {
+  youtube: "https://www.youtube.com/@Nomadatoast",
+  tiktok: "https://www.tiktok.com/@nomadatoast",
+  instagram: "https://www.instagram.com/nomadatoast/",
+  threads: "https://www.threads.net/@nomadatoast",
+  x: "https://x.com/nomadatoast",
+  allLinks: "https://www.instagram.com/nomadatoast/",
+  emailPress: "mailto:hi@nomadatoast.com?subject=Press%20%26%20collabs",
+} as const;
 
 const FRAME_COUNT = 13;
 const VIDEO_PROGRESS_LIMIT = 0.16;
@@ -42,6 +58,7 @@ function visibleBetween(progress: number, start: number, end: number, fade = 0.0
 
 export function ScrollExperience() {
   const rootRef = useRef<HTMLElement>(null);
+  const heroZoneRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoStageRef = useRef<HTMLDivElement>(null);
 
@@ -63,7 +80,9 @@ export function ScrollExperience() {
   const targetTimeRef = useRef(0);
   const durationRef = useRef(10);
 
-  const isMobileRef = useRef(false);
+  const breakpointRef = useRef<BreakpointKey>("lg");
+  const seekThresholdRef = useRef(SEEK_THRESHOLD);
+  const videoFailedRef = useRef(false);
   const lastDarkRef = useRef(false);
   const lastShowRailRef = useRef(false);
   const lastTargetTimeRef = useRef(-1);
@@ -149,9 +168,40 @@ export function ScrollExperience() {
     const root = rootRef.current;
     if (!root) return;
 
-    const mql = window.matchMedia("(max-width: 900px)");
-    isMobileRef.current = mql.matches;
-    root.classList.toggle("mobileFlow", mql.matches);
+    const applyBreakpoint = () => {
+      const bp = getBreakpoint();
+      breakpointRef.current = bp;
+      const config = VIDEO_STAGE_CONFIG[bp];
+      const compact = isCompactLayout(bp);
+      const video = videoRef.current;
+      const stage = videoStageRef.current;
+
+      root.dataset.bp = bp;
+      root.classList.toggle("compactLayout", compact);
+
+      if (stage) {
+        stage.style.opacity = "1";
+        if (compact) {
+          stage.style.setProperty("--stage-height", config.stageHeight);
+          stage.style.setProperty("--stage-min-height", `${config.stageMinHeight}px`);
+        } else {
+          stage.style.removeProperty("--stage-height");
+          stage.style.removeProperty("--stage-min-height");
+        }
+      }
+
+      if (video) {
+        if (compact) {
+          video.style.objectPosition = config.objectPosition;
+          video.style.transform = `scale(${config.scale})`;
+        } else {
+          video.style.objectPosition = "center";
+          video.style.transform = "scale(1.008)";
+        }
+      }
+
+      seekThresholdRef.current = config.seekThreshold;
+    };
 
     panelsRef.current = Array.from(
       root.querySelectorAll<HTMLElement>(".narrativePanel, .narrativePanelFull"),
@@ -162,19 +212,22 @@ export function ScrollExperience() {
 
     let raf = 0;
 
-    const computeProgress = () => {
-      return clamp(
-        (window.scrollY - cachedOffsetTop.current) / cachedScrollDistance.current,
-      );
+    const computeDesktopProgress = () =>
+      clamp((window.scrollY - cachedOffsetTop.current) / cachedScrollDistance.current);
+
+    const computeHeroProgress = () => {
+      const config = VIDEO_STAGE_CONFIG[breakpointRef.current];
+      const scrollRange = Math.max(window.innerHeight * 0.75, 320);
+      return clamp((window.scrollY / scrollRange) * config.heroScrollRange);
     };
 
     const syncVideo = (p: number) => {
       const video = videoRef.current;
-      if (!video || video.readyState < 2 || !Number.isFinite(video.duration)) return;
+      if (!video || videoFailedRef.current || video.readyState < 2 || !Number.isFinite(video.duration)) return;
       const scaled = clamp(p / VIDEO_PROGRESS_LIMIT);
       const tt = scaled * Math.max(durationRef.current - 0.04, 0);
       targetTimeRef.current = tt;
-      if (Math.abs(tt - lastTargetTimeRef.current) > SEEK_THRESHOLD) {
+      if (Math.abs(tt - lastTargetTimeRef.current) > seekThresholdRef.current) {
         lastTargetTimeRef.current = tt;
         video.currentTime = Math.min(tt, durationRef.current - 0.04);
       }
@@ -182,29 +235,34 @@ export function ScrollExperience() {
 
     const updateMetrics = () => {
       raf = 0;
+      applyBreakpoint();
+
+      if (isCompactLayout(breakpointRef.current)) {
+        const p = computeHeroProgress();
+        progressRef.current = p;
+        syncVideo(p);
+        return;
+      }
+
       cachedOffsetTop.current = root.offsetTop;
       cachedScrollDistance.current = Math.max(root.offsetHeight - window.innerHeight, 1);
-      if (isMobileRef.current) return;
-      const p = computeProgress();
+      const p = computeDesktopProgress();
       progressRef.current = p;
       syncVideo(p);
       updateStyles(p);
     };
 
-    const onMql = () => {
-      isMobileRef.current = mql.matches;
-      root.classList.toggle("mobileFlow", mql.matches);
-      if (mql.matches) {
-        if (videoStageRef.current) videoStageRef.current.style.opacity = "1";
-      }
-      requestAnimationFrame(updateMetrics);
-    };
-
     const onScroll = () => {
-      if (isMobileRef.current || raf) return;
+      if (raf) return;
       raf = requestAnimationFrame(() => {
         raf = 0;
-        const p = computeProgress();
+        if (isCompactLayout(breakpointRef.current)) {
+          const p = computeHeroProgress();
+          progressRef.current = p;
+          syncVideo(p);
+          return;
+        }
+        const p = computeDesktopProgress();
         progressRef.current = p;
         syncVideo(p);
         updateStyles(p);
@@ -226,8 +284,8 @@ export function ScrollExperience() {
     updateMetrics();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", updateMetrics);
+    window.addEventListener("orientationchange", updateMetrics);
     window.addEventListener("pageshow", onPageShow);
-    mql.addEventListener("change", onMql);
     const timeout = setTimeout(updateMetrics, 120);
     const secondSync = setTimeout(updateMetrics, 600);
 
@@ -237,8 +295,8 @@ export function ScrollExperience() {
       clearTimeout(secondSync);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", updateMetrics);
+      window.removeEventListener("orientationchange", updateMetrics);
       window.removeEventListener("pageshow", onPageShow);
-      mql.removeEventListener("change", onMql);
     };
   }, []);
 
@@ -246,25 +304,36 @@ export function ScrollExperience() {
     const video = videoRef.current;
     if (!video) return;
 
-    const onMetadata = () => {
+    const primeVideoFrame = () => {
+      if (videoFailedRef.current) return;
       durationRef.current = Number.isFinite(video.duration) ? video.duration : 10;
       video.pause();
-      if (!isMobileRef.current) {
-        const scaled = clamp(progressRef.current / VIDEO_PROGRESS_LIMIT);
-        const tt = scaled * Math.max(durationRef.current - 0.04, 0);
-        targetTimeRef.current = tt;
-        lastTargetTimeRef.current = tt;
-        if (video.readyState >= 2) {
-          video.currentTime = Math.min(tt, durationRef.current - 0.04);
-        }
+      const scaled = clamp(progressRef.current / VIDEO_PROGRESS_LIMIT);
+      const tt = scaled * Math.max(durationRef.current - 0.04, 0);
+      targetTimeRef.current = tt;
+      lastTargetTimeRef.current = tt;
+      if (video.readyState >= 2) {
+        video.currentTime = Math.min(tt, durationRef.current - 0.04);
       }
     };
 
+    const onMetadata = () => primeVideoFrame();
+    const onCanPlay = () => primeVideoFrame();
+
+    const onError = () => {
+      videoFailedRef.current = true;
+      videoStageRef.current?.classList.add("videoStageFallback");
+    };
+
     video.addEventListener("loadedmetadata", onMetadata);
+    video.addEventListener("canplay", onCanPlay);
+    video.addEventListener("error", onError);
     if (video.readyState >= 1) onMetadata();
 
     return () => {
       video.removeEventListener("loadedmetadata", onMetadata);
+      video.removeEventListener("canplay", onCanPlay);
+      video.removeEventListener("error", onError);
     };
   }, []);
 
@@ -282,9 +351,10 @@ export function ScrollExperience() {
   ];
 
   return (
-    <main ref={rootRef} className="scrollExperience">
-      <div className="stickyViewport">
-        <div ref={videoStageRef} className="videoStage" aria-hidden="true">
+    <main ref={rootRef} className="scrollExperience" data-bp="lg">
+      <div ref={heroZoneRef} className="heroScrollZone">
+        <div className="stickyViewport">
+        <div ref={videoStageRef} className="videoStage">
           <video
             ref={videoRef}
             className="scrollVideo"
@@ -292,7 +362,8 @@ export function ScrollExperience() {
             poster="/head-poster.webp"
             muted
             playsInline
-            preload="auto"
+            preload="metadata"
+            aria-label="Scroll-driven portrait transformation video"
           />
           <div className="videoTreatment" />
         </div>
@@ -730,7 +801,7 @@ export function ScrollExperience() {
 
                 <div className="aboutButtons">
                   <a href="https://youtube.com/@Nomadatoast" target="_blank" rel="noopener noreferrer" className="aboutBtn">Watch latest</a>
-                  <a href="#" className="aboutBtn">All links</a>
+                  <a href={LINKS.allLinks} target="_blank" rel="noopener noreferrer" className="aboutBtn">All links</a>
                   <a href="mailto:hi@nomadatoast.com" className="aboutBtn">Get in touch</a>
                 </div>
               </div>
@@ -762,10 +833,10 @@ export function ScrollExperience() {
 
             <div className="contactLinks">
               <a className="contactLink" href="https://youtube.com/@Nomadatoast" target="_blank" rel="noreferrer">YouTube @Nomadatoast ↗</a>
-              <a className="contactLink" href="#" rel="noreferrer">TikTok @nomadatoast ↗</a>
-              <a className="contactLink" href="#" rel="noreferrer">Instagram @nomadatoast ↗</a>
-              <a className="contactLink" href="#" rel="noreferrer">Threads @nomadatoast ↗</a>
-              <a className="contactLink" href="#" rel="noreferrer">X @nomadatoast ↗</a>
+              <a className="contactLink" href={LINKS.tiktok} target="_blank" rel="noreferrer">TikTok @nomadatoast ↗</a>
+              <a className="contactLink" href={LINKS.instagram} target="_blank" rel="noreferrer">Instagram @nomadatoast ↗</a>
+              <a className="contactLink" href={LINKS.threads} target="_blank" rel="noreferrer">Threads @nomadatoast ↗</a>
+              <a className="contactLink" href={LINKS.x} target="_blank" rel="noreferrer">X @nomadatoast ↗</a>
             </div>
           </div>
 
@@ -785,18 +856,18 @@ export function ScrollExperience() {
                 <h4>Watch</h4>
                 <ul>
                   <li><a href="https://youtube.com/@Nomadatoast" target="_blank" rel="noreferrer">YouTube · @Nomadatoast</a></li>
-                  <li><a href="#" rel="noreferrer">TikTok · @nomadatoast</a></li>
-                  <li><a href="#" rel="noreferrer">Instagram Reels</a></li>
-                  <li><a href="#" rel="noreferrer">Latest video</a></li>
+                  <li><a href={LINKS.tiktok} target="_blank" rel="noreferrer">TikTok · @nomadatoast</a></li>
+                  <li><a href={LINKS.instagram} target="_blank" rel="noreferrer">Instagram Reels</a></li>
+                  <li><a href={LINKS.youtube} target="_blank" rel="noreferrer">Latest video</a></li>
                 </ul>
               </div>
 
               <div className="footerLinkCol">
                 <h4>Read</h4>
                 <ul>
-                  <li><a href="#" rel="noreferrer">Threads · @nomadatoast</a></li>
-                  <li><a href="#" rel="noreferrer">X · @nomadatoast</a></li>
-                  <li><a href="#" rel="noreferrer">All links</a></li>
+                  <li><a href={LINKS.threads} target="_blank" rel="noreferrer">Threads · @nomadatoast</a></li>
+                  <li><a href={LINKS.x} target="_blank" rel="noreferrer">X · @nomadatoast</a></li>
+                  <li><a href={LINKS.allLinks} target="_blank" rel="noreferrer">All links</a></li>
                 </ul>
               </div>
 
@@ -804,8 +875,8 @@ export function ScrollExperience() {
                 <h4>Contact</h4>
                 <ul>
                   <li><a href="mailto:hi@nomadatoast.com">hi@nomadatoast.com</a></li>
-                  <li><a href="#">Press & collabs</a></li>
-                  <li><a href="#">Amsterdam · Lisbon</a></li>
+                  <li><a href={LINKS.emailPress}>Press & collabs</a></li>
+                  <li><span className="footerLocation">Amsterdam · Lisbon</span></li>
                 </ul>
               </div>
             </div>
@@ -816,10 +887,10 @@ export function ScrollExperience() {
               <span>© 2025 Jo Mendes · NomadaToast. Made using Emergent.</span>
               <div className="bottomBarLinks">
                 <a href="https://youtube.com/@Nomadatoast" target="_blank" rel="noreferrer">YOUTUBE</a>
-                <a href="#" rel="noreferrer">TIKTOK</a>
-                <a href="#" rel="noreferrer">INSTAGRAM</a>
-                <a href="#" rel="noreferrer">THREADS</a>
-                <a href="#" rel="noreferrer">X</a>
+                <a href={LINKS.tiktok} target="_blank" rel="noreferrer">TIKTOK</a>
+                <a href={LINKS.instagram} target="_blank" rel="noreferrer">INSTAGRAM</a>
+                <a href={LINKS.threads} target="_blank" rel="noreferrer">THREADS</a>
+                <a href={LINKS.x} target="_blank" rel="noreferrer">X</a>
               </div>
             </div>
           </div>
@@ -845,10 +916,10 @@ export function ScrollExperience() {
             <div className="railScene" style={{ opacity: 0 }}>
               <p className="railLabel">Follow</p>
               <a href="https://youtube.com/@Nomadatoast" target="_blank" rel="noreferrer">YouTube</a>
-              <a href="#" rel="noreferrer">TikTok</a>
-              <a href="#" rel="noreferrer">Instagram</a>
-              <a href="#" rel="noreferrer">Threads</a>
-              <a href="#" rel="noreferrer">X</a>
+              <a href={LINKS.tiktok} target="_blank" rel="noreferrer">TikTok</a>
+              <a href={LINKS.instagram} target="_blank" rel="noreferrer">Instagram</a>
+              <a href={LINKS.threads} target="_blank" rel="noreferrer">Threads</a>
+              <a href={LINKS.x} target="_blank" rel="noreferrer">X</a>
             </div>
 
             <div className="railScene" style={{ opacity: 0 }}>
@@ -871,6 +942,7 @@ export function ScrollExperience() {
         </div>
 
         <p className="mobileHint">Scroll to transform <span aria-hidden="true">↓</span></p>
+        </div>
       </div>
     </main>
   );

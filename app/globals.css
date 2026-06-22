@@ -74,8 +74,138 @@ a:focus-visible {
   z-index: -3;
   inset: 0;
   overflow: hidden;
-  background: inherit;
+  background-color: var(--paper);
+  background-image: url("/head-poster.webp");
+  background-size: cover;
+  background-position: center;
   transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.videoStageFallback .scrollVideo {
+  opacity: 0;
+}
+
+.heroScrollZone {
+  position: relative;
+}
+
+.scrollExperience.compactLayout {
+  min-height: auto;
+  background: #11100f;
+  --paper: #11100f;
+}
+
+.scrollExperience.compactLayout .heroScrollZone {
+  position: relative;
+}
+
+.scrollExperience.compactLayout .stickyViewport {
+  position: relative;
+  height: auto;
+  min-height: auto;
+  overflow: visible;
+  isolation: isolate;
+}
+
+.scrollExperience.compactLayout .videoStage {
+  position: relative;
+  z-index: 0;
+  inset: auto;
+  width: 100%;
+  height: var(--stage-height, 58vh);
+  min-height: var(--stage-min-height, 340px);
+}
+
+.scrollExperience.compactLayout .grain,
+.scrollExperience.compactLayout .viewportFrame {
+  display: none;
+}
+
+.scrollExperience.compactLayout .siteHeader {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  grid-template-columns: 1fr auto;
+  z-index: 20;
+}
+
+.scrollExperience.compactLayout .navPill,
+.scrollExperience.compactLayout .informationRail,
+.scrollExperience.compactLayout .frameCounter {
+  display: none;
+}
+
+.scrollExperience.compactLayout .mobileHint {
+  display: block;
+  position: absolute;
+  z-index: 11;
+  bottom: 24px;
+  left: 50%;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+}
+
+.scrollExperience.compactLayout .narrative {
+  position: relative;
+  top: auto;
+  bottom: auto;
+  left: 0;
+  right: 0;
+  width: auto;
+  pointer-events: auto;
+  padding: 40px 22px 80px;
+  z-index: 5;
+}
+
+.scrollExperience:not(.compactLayout) .heroScrollZone {
+  display: contents;
+}
+
+.scrollExperience:not(.compactLayout) .narrative {
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  bottom: 0;
+  left: 3.1vw;
+  right: 3.1vw;
+  pointer-events: none;
+}
+
+.scrollExperience.compactLayout .narrativePanel,
+.scrollExperience.compactLayout .narrativePanelFull {
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  width: 100%;
+  max-width: 100%;
+  max-height: none;
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: none !important;
+  margin-bottom: 72px;
+  overflow: visible;
+}
+
+.scrollExperience[data-bp="xs"] .heroScrollZone {
+  min-height: 0;
+}
+
+.scrollExperience[data-bp="sm"] .heroScrollZone {
+  min-height: 0;
+}
+
+.scrollExperience[data-bp="md"] .heroScrollZone {
+  min-height: 0;
 }
 
 .scrollVideo {
@@ -536,7 +666,114 @@ a:focus-visible {
   animation: pulse 1s infinite;
 }
 
-@media (max-width: 900px) {
+.scrollExperience.compactLayout .scrollVideo {
+  transform: scale(var(--video-scale, 1.02));
+  -webkit-transform: scale(var(--video-scale, 1.02));
+}
+
+.scrollExperience.compactLayout .videoTreatment {
+  background:
+    linear-gradient(180deg, transparent 42%, rgba(72, 61, 58, 0.38) 100%),
+    radial-gradient(circle at 50% 42%, transparent 45%, rgba(85, 72, 69, 0.12) 100%);
+}
+
+.scrollExperience.compactLayout .subscribeButton {
+  padding-left: 15px;
+  gap: 10px;
+  border-radius: 13px;
+  font-size: 12px;
+}
+
+.scrollExperience.compactLayout .arrowDisc {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  font-size: 18px;
+}
+
+.scrollExperience.compactLayout .eyebrow {
+  margin-bottom: 17px;
+  padding: 6px 10px 5px;
+  font-size: 8px;
+}
+
+.scrollExperience.compactLayout .narrative h1,
+.scrollExperience.compactLayout .narrative h2 {
+  max-width: 92vw;
+  font-size: clamp(38px, 11vw, 52px);
+  line-height: 1.01;
+}
+
+.scrollExperience.compactLayout .intro {
+  max-width: 92%;
+  margin-top: 22px;
+  font-size: 14px;
+}
+
+.scrollExperience.compactLayout .projectButton {
+  width: min(330px, 90vw);
+  margin-top: 20px;
+}
+
+.scrollExperience.compactLayout .projectButton span:last-child {
+  width: 43px;
+  height: 43px;
+}
+
+.scrollExperience[data-bp="xs"] .brandCopy small {
+  display: none;
+}
+
+.scrollExperience[data-bp="xs"] .siteHeader {
+  left: 16px;
+  right: 16px;
+}
+
+.scrollExperience[data-bp="xs"] .subscribeButton {
+  padding-left: 12px;
+}
+
+.scrollExperience[data-bp="xs"] .arrowDisc {
+  width: 31px;
+  height: 31px;
+}
+
+.scrollExperience[data-bp="xs"] .narrative {
+  padding-left: 18px;
+  padding-right: 18px;
+}
+
+.scrollExperience[data-bp="xs"] .eyebrow {
+  margin-bottom: 13px;
+}
+
+.scrollExperience[data-bp="xs"] .intro {
+  margin-top: 17px;
+  line-height: 1.4;
+}
+
+@media (max-width: 1024px) {
+  .scrollExperience.compactLayout .brand {
+    gap: 11px;
+  }
+
+  .scrollExperience.compactLayout .brandMark {
+    width: 30px;
+    height: 30px;
+  }
+
+  .scrollExperience.compactLayout .brandMark::before,
+  .scrollExperience.compactLayout .brandMark::after {
+    width: 29px;
+    height: 7px;
+  }
+
+  .scrollExperience.compactLayout .brandCopy strong {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 1024px) {
   .scrollExperience {
     min-height: auto;
     background: #11100f;
@@ -552,135 +789,11 @@ a:focus-visible {
 
   .videoStage {
     position: relative;
-    height: 58vh;
-    min-height: 340px;
-  }
-
-  .grain,
-  .viewportFrame,
-  .mobileHint {
-    display: none;
-  }
-
-  .siteHeader {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    right: 20px;
-    grid-template-columns: 1fr auto;
-  }
-
-  .brand {
-    gap: 11px;
-  }
-
-  .brandMark {
-    width: 30px;
-    height: 30px;
-  }
-
-  .brandMark::before,
-  .brandMark::after {
-    width: 29px;
-    height: 7px;
-  }
-
-  .brandCopy strong {
-    font-size: 15px;
-  }
-
-  .navPill,
-  .informationRail,
-  .frameCounter {
-    display: none;
-  }
-
-  .subscribeButton {
-    padding-left: 15px;
-    gap: 10px;
-    border-radius: 13px;
-    font-size: 12px;
-  }
-
-  .arrowDisc {
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
-    font-size: 18px;
-  }
-
-  .scrollVideo {
-    object-position: center;
-    transform: scale(1.01);
-  }
-
-  .videoTreatment {
-    background:
-      linear-gradient(180deg, transparent 42%, rgba(72, 61, 58, 0.38) 100%),
-      radial-gradient(circle at 50% 42%, transparent 45%, rgba(85, 72, 69, 0.12) 100%);
-  }
-
-  .narrative {
-    position: relative;
-    top: auto;
-    bottom: auto;
-    left: 0;
-    right: 0;
-    width: auto;
-    pointer-events: auto;
-    padding: 40px 22px 80px;
-  }
-
-  .narrativePanel,
-  .narrativePanelFull {
-    position: relative;
-    top: auto;
-    left: auto;
-    right: auto;
-    bottom: auto;
+    z-index: 0;
+    inset: auto;
     width: 100%;
-    max-width: 100%;
-    max-height: none;
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-    transform: none !important;
-    margin-bottom: 72px;
-    overflow: visible;
-  }
-
-  .eyebrow {
-    margin-bottom: 17px;
-    padding: 6px 10px 5px;
-    font-size: 8px;
-  }
-
-  .narrative h1,
-  .narrative h2 {
-    max-width: 92vw;
-    font-size: clamp(38px, 11vw, 52px);
-    line-height: 1.01;
-  }
-
-  .intro {
-    max-width: 92%;
-    margin-top: 22px;
-    font-size: 14px;
-  }
-
-  .finalIntro {
-    display: none;
-  }
-
-  .projectButton {
-    width: min(330px, 90vw);
-    margin-top: 20px;
-  }
-
-  .projectButton span:last-child {
-    width: 43px;
-    height: 43px;
+    height: var(--stage-height, 58vh);
+    min-height: var(--stage-min-height, 340px);
   }
 }
 
@@ -1411,6 +1524,10 @@ a:focus-visible {
 }
 .footerLinkCol a:hover {
   color: var(--white);
+}
+.footerLocation {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
 }
 .hugeFooterText {
   font-size: clamp(80px, 12vw, 190px);
